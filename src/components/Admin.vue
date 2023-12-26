@@ -8,7 +8,7 @@
       <div class="input-group">
         <label for="bookname">書籍名稱：</label>
         <input type="text" id="bookname" v-model="bookname" />
-        
+
         <label for="bookname">書籍作者：</label>
         <input type="text" id="authorname" v-model="authorname" />
       </div>
@@ -21,7 +21,7 @@
       <button @click="updateRecord">修改</button>
       <button @click="searchRecords">查詢</button>
     </div>
-    
+
     <!-- 表格1 -->
     <table class="book-table">
       <thead>
@@ -42,39 +42,52 @@
         </tr>
       </tbody>
     </table>
-    
+
+    <!-- 用户管理界面 -->
+    <div class="user-management-section">
+      <h2>用戶管理介面</h2>
+
+      <!-- 删除用户表单 -->
+      <div class="input-group">
+        <label for="delete-username">刪除使用者：</label>
+        <input type="text" id="delete-username" v-model="deleteUsername" />
+        <button @click="deleteUser">删除</button>
+      </div>
+
+      <!-- 修改用户密码表单 -->
+      <div class="input-group">
+        <label for="edit-username">使用者帳號：</label>
+        <input type="text" id="edit-username" v-model="editUsername" />
+
+        <label for="new-password">新密碼：</label>
+        <input type="password" id="new-password" v-model="newPassword" />
+
+        <button @click="updateUserPassword">修改密碼</button>
+      </div>
+    </div>
+
     <!-- 表格2 -->
     <table class="member-table">
       <thead>
         <tr>
           <th>會員帳號</th>
+          <th>會員密碼</th>
           <th>借閱的書籍</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(member, index) in members" :key="index">
           <td>{{ member.id }}</td>
+          <td>{{ user.password }}</td>
           <td>{{ member.borrowedBooks.join(', ') }}</td>
         </tr>
       </tbody>
     </table>
-    
-    <!-- 表格3 -->
-    <table class="account-table">
-      <thead>
-        <tr>
-          <th>會員帳號</th>
-          <th>會員密碼</th>
-        </tr>
-      </thead>
-    <tbody>
-      <tr v-for="(user, index) in users" :key="index">
-        <td>{{ user.username }}</td>
-        <td>{{ user.password }}</td>
-      </tr>
-    </tbody>
-  </table>
-    
+
+    <!-- 使用 Surely Vue Table -->
+    <surely-table :columns="columns" :data="books" class="book-table">
+    </surely-table>
+
   </div>
 </template>
 
@@ -93,7 +106,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -110,12 +124,32 @@ th {
 }
 </style>
 
+
 <script>
+import SurelyTable from '@surely-vue/table';
+
 export default {
-  
+  components: {
+    SurelyTable
+  },
+  data() {
+    return {
+      // 其他数据...
+      columns: [
+        { title: '書籍名稱', field: 'name' },
+        { title: '書籍作者', field: 'author' },
+        { title: '是否借閱', field: 'borrowed' },
+        { title: '借閱人', field: 'borrower' },
+        { title: '借閱時間', field: 'borrowTime' }
+      ],
+      books: [
+        // 书籍数据数组...
+      ],
+      // 其他数据...
+    };
+  },
   methods: {
     // 其他方法...
-    
   }
 };
 </script>

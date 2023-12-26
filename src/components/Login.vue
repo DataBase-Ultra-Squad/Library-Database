@@ -1,32 +1,94 @@
+
 <template>
   <div id="app">
     <h1>{{ message }}</h1>
-    
-    <!-- 顯示登入狀態 -->
+
+    <!-- 用户登录界面 -->
+    <a-form class="login-section">
+      <h2>使用者登入</h2>
+
+      <a-form-item label="帳號：">
+        <a-input v-model="loginUsername" />
+
+      <!-- </a-form-item>
+      <a-form-item label="密碼：">
+        <a-input type="password" v-model="loginPassword" />
+      </a-form-item> -->
+
+      <a-form-item label="帳號：">
+        <input type="text" v-model="loginUsername" />
+      </a-form-item>
+      <a-form-item label="密碼：">
+        <input type="password" v-model="loginPassword" />
+      </a-form-item>
+
+      <a-form-item>
+        <a-button @click="registerAccount" type="primary">註冊</a-button>
+        <a-button @click="loginAccount">登入</a-button>
+      </a-form-item>
+
+    </a-form>
+
+    <!-- 显示登录状态 -->
     <div class="login-status">
       {{ loginStatus }}
     </div>
 
-    <!-- 使用者登入介面 -->
-    <div class="login-section">
-      <h2>使用者登入</h2>
-      <div class="input-group">
-        <label for="login-username">帳號名稱：</label>
-        <input type="text" id="login-username" v-model="loginUsername" />
-      </div>
-
-      <div class="input-group">
-        <label for="login-password">密碼：</label>
-        <input type="password" id="login-password" v-model="loginPassword" />
-      </div>
-
-      <div class="button-group">
-        <button @click="registerAccount">註冊</button>
-        <button @click="loginAccount">登入</button>
-      </div>
-    </div>
   </div>
 </template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      loginUsername: '',  // 用于绑定登录用户名
+      loginPassword: '',  // 用于绑定登录密码
+      loginStatus: '',    // 用于显示登录状态
+      users: [],         // 用于存储注册的用户信息
+    };
+  },
+  methods: {
+    registerAccount() {
+      const { loginUsername, loginPassword } = this;
+
+      console.log("Username:", this.loginUsername);
+      console.log("Password:", this.loginPassword);
+      if (!loginUsername || !loginPassword) {
+        this.loginStatus = '帳號和密碼不能為空';
+        return;
+      }
+
+      if (this.users.some(user => user.username === loginUsername)) {
+        this.loginStatus = '此帳號名已經存在';
+        return;
+      }
+
+      this.users.push({ username: loginUsername, password: loginPassword });
+      this.loginUsername = '';
+      this.loginPassword = '';
+      this.loginStatus = '註冊成功';
+    },
+
+    loginAccount() {
+      const { loginUsername, loginPassword } = this;
+      if (!loginUsername || !loginPassword) {
+        this.loginStatus = '帳號和密碼不能為空';
+        return;
+      }
+
+      const user = this.users.find(user => user.username === loginUsername && user.password === loginPassword);
+      if (user) {
+        this.loginStatus = '登入成功';
+        // 这里可以添加登录成功后的逻辑，比如路由跳转等
+      } else {
+        this.loginStatus = '帳號或密碼錯誤';
+      }
+    },
+  }
+};
+</script>
 
 <style>
 #app {
@@ -35,99 +97,8 @@
 }
 
 .login-status {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  padding: 8px;
-  background: #ddd;
-}
-
-.login-section,
-.borrow-section {
   margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-h2 {
-  margin-bottom: 10px;
-}
-
-.input-group {
-  margin-bottom: 15px;
-}
-
-.input-group label {
-  margin-right: 10px;
-}
-
-.button-group button {
-  margin-right: 10px;
-}
-
-.login-status {
-  margin-top: 20px;
   font-weight: bold;
   color: green;
 }
 </style>
-
-<script>
-export default {
-  data() {
-    return {
-      users: [],
-      loginStatus: null
-    };
-  },
-  
-  methods: {
-    registerAccount() {
-      const username = this.loginUsername;
-      const password = this.loginPassword;
-
-      if (!username || !password) {
-        this.loginStatus = '帳號和密碼不能為空';
-        return;
-      }
-
-      if (this.users.some(user => user.username === username)) {
-        this.loginStatus = '此帳號名已經存在';
-        return;
-      }
-
-      this.users.push({ username, password });
-      this.loginUsername = '';
-      this.loginPassword = '';
-      this.loginStatus = '註冊成功';
-    },
-    
-    loginAccount() {
-      const username = this.loginUsername;
-      const password = this.loginPassword;
-
-      if (!username || !password) {
-        this.loginStatus = '帳號和密碼不能為空';
-        return;
-      }
-      
-      if (username === 'admin' && password === 'admin') {
-        this.loginStatus = '登入成功';
-        this.$router.push('/admin');
-        return;
-      }
-      
-      const user = this.users.find(user => user.username === username && user.password === password);
-
-      if (user) {
-        this.loginStatus = '登入成功';
-        this.$router.push('/borrow-books');
-      } else {
-        this.loginStatus = '帳號或密碼錯誤';
-      }
-    },
-  }
-};
-</script>

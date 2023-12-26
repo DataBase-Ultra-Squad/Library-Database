@@ -15,28 +15,28 @@
         <button @click="returnBook">歸還</button>
         <button @click="searchRecords">查詢</button>
       </div>
-    
-    <!-- 表格1 -->
-    <table class="book-table">
-      <thead>
-        <tr>
-          <th>書籍名稱</th>
-          <th>書籍作者</th>
-          <th>是否借閱</th>
-          <th>借閱人</th>
-          <th>借閱時間</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(book, index) in books" :key="index">
-          <td>{{ book.name }}</td>
-          <td>{{ book.borrowed ? '已借閱' : '未借閱' }}</td>
-          <td>{{ book.borrower }}</td>
-          <td>{{ book.borrowTime }}</td>
-        </tr>
-      </tbody>
-    </table>
-    
+
+      <!-- 表格1 -->
+      <table class="book-table">
+        <thead>
+          <tr>
+            <th>書籍名稱</th>
+            <th>書籍作者</th>
+            <th>是否借閱</th>
+            <th>借閱人</th>
+            <th>借閱時間</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(book, index) in books" :key="index">
+            <td>{{ book.name }}</td>
+            <td>{{ book.borrowed ? '已借閱' : '未借閱' }}</td>
+            <td>{{ book.borrower }}</td>
+            <td>{{ book.borrowTime }}</td>
+          </tr>
+        </tbody>
+      </table>
+
     </div>
   </div>
 </template>
@@ -56,7 +56,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -65,15 +66,14 @@ th, td {
 th {
   background-color: #f2f2f2;
 }
-
 </style>
 
 <script>
 export default {
-  
+
   methods: {
     // 其他方法...
-    
+
   }
 };
 </script>
