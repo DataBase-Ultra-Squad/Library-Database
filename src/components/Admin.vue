@@ -1,156 +1,221 @@
 <template>
   <div id="app">
-    <h1>{{ message }}</h1>
+    <div class="management-container">
+      <div class="bookForm-container">
+        <h1>書籍管理介面</h1>
+        <a-form :model="bookFormState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }"
+          autocomplete="off" @finish="onFinish" @finishFailed="onFinishFailed">
+          <a-form-item label="書籍名稱" class="input-width" name="bookName"
+            :rules="[{ required: true, message: 'Please input book name!' }]">
+            <a-input v-model:value="bookFormState.bookName" />
+          </a-form-item>
 
-    <!-- 借閱書籍介面 -->
-    <div class="manage-section">
-      <h2>書籍管理介面</h2>
-      <div class="input-group">
-        <label for="bookname">書籍名稱：</label>
-        <input type="text" id="bookname" v-model="bookname" />
+          <a-form-item label="書籍作者" class="input-width" name="bookAuthor">
+            <a-input v-model:value="bookFormState.bookAuthor" />
+          </a-form-item>
 
-        <label for="bookname">書籍作者：</label>
-        <input type="text" id="authorname" v-model="authorname" />
-      </div>
-    </div>
+          <a-form-item :wrapper-col="{ offset: 30, span: 16 }">
+            <a-button @click="addBook">新增</a-button>
+            <a-button style="margin-left: 10px" @click="deleteBook">刪除</a-button>
+            <a-button style="margin-left: 10px" @click="modifyBook">修改</a-button>
+            <a-button style="margin-left: 10px" @click="searchBooks">搜尋</a-button>
+          </a-form-item>
+          <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 400 }" />
+        </a-form>
 
-    <!-- 添加四個按鈕 -->
-    <div class="button-section">
-      <button @click="addRecord">新增</button>
-      <button @click="deleteRecord">刪除</button>
-      <button @click="updateRecord">修改</button>
-      <button @click="searchRecords">查詢</button>
-    </div>
-
-    <!-- 表格1 -->
-    <table class="book-table">
-      <thead>
-        <tr>
-          <th>書籍名稱</th>
-          <th>書籍作者</th>
-          <th>是否借閱</th>
-          <th>借閱人</th>
-          <th>借閱時間</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(book, index) in books" :key="index">
-          <td>{{ book.name }}</td>
-          <td>{{ book.borrowed ? '已借閱' : '未借閱' }}</td>
-          <td>{{ book.borrower }}</td>
-          <td>{{ book.borrowTime }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- 用户管理界面 -->
-    <div class="user-management-section">
-      <h2>用戶管理介面</h2>
-
-      <!-- 删除用户表单 -->
-      <div class="input-group">
-        <label for="delete-username">刪除使用者：</label>
-        <input type="text" id="delete-username" v-model="deleteUsername" />
-        <button @click="deleteUser">删除</button>
       </div>
 
-      <!-- 修改用户密码表单 -->
-      <div class="input-group">
-        <label for="edit-username">使用者帳號：</label>
-        <input type="text" id="edit-username" v-model="editUsername" />
+      <div class="userForm-container">
+        <h1>用戶管理介面</h1>
+        <a-form :model="userFormState" name="userForm" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }"
+          autocomplete="off">
+          <a-form-item label="使用者帳號" class="input-width" name="username"
+            :rules="[{ required: true, message: 'Please input username!' }]">
+            <a-input v-model:value="userFormState.username" />
+          </a-form-item>
 
-        <label for="new-password">新密碼：</label>
-        <input type="password" id="new-password" v-model="newPassword" />
+          <a-form-item label="使用者密碼" class="input-width" name="password">
+            <a-input-password v-model:value="userFormState.password" />
+          </a-form-item>
 
-        <button @click="updateUserPassword">修改密碼</button>
+          <a-form-item :wrapper-col="{ offset: 30, span: 16 }">
+            <a-button @click="deleteUser">刪除帳號</a-button>
+            <a-button style="margin-left: 10px" @click="modifyUserPassword">修改密碼</a-button>
+          </a-form-item>
+
+          <a-table :columns="userColumns" :data-source="userData" :scroll="{ y: 400 }" />
+        </a-form>
+
       </div>
     </div>
-
-    <!-- 表格2 -->
-    <table class="member-table">
-      <thead>
-        <tr>
-          <th>會員帳號</th>
-          <th>會員密碼</th>
-          <th>借閱的書籍</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(member, index) in members" :key="index">
-          <td>{{ member.id }}</td>
-          <td>{{ user.password }}</td>
-          <td>{{ member.borrowedBooks.join(', ') }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- 使用 Surely Vue Table -->
-    <surely-table :columns="columns" :data="books" class="book-table">
-    </surely-table>
-
   </div>
 </template>
 
-<!-- 其他部分保持不變 -->
+<script setup>
+import { reactive, computed } from 'vue';
 
-<style>
-#app {
-  text-align: left;
-  margin-top: 30px;
-}
-
-/* 表格樣式 */
-table {
-  width: 30%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-/* 表格的特定樣式 */
-.book-table,
-.member-table {
-  margin-top: 20px;
-}
-</style>
-
-
-<script>
-import SurelyTable from '@surely-vue/table';
-
-export default {
-  components: {
-    SurelyTable
-  },
-  data() {
-    return {
-      // 其他数据...
-      columns: [
-        { title: '書籍名稱', field: 'name' },
-        { title: '書籍作者', field: 'author' },
-        { title: '是否借閱', field: 'borrowed' },
-        { title: '借閱人', field: 'borrower' },
-        { title: '借閱時間', field: 'borrowTime' }
-      ],
-      books: [
-        // 书籍数据数组...
-      ],
-      // 其他数据...
-    };
-  },
-  methods: {
-    // 其他方法...
-  }
+const onFinish = (values) => {
+  console.log('Form Success:', values);
 };
+
+const onFinishFailed = (errorInfo) => {
+  console.log('Form Failed:', errorInfo);
+};
+
+const bookFormState = reactive({
+  bookName: '',
+  bookAuthor: ''
+});
+
+const clearForm = () => {
+  bookFormState.bookName = '';
+  bookFormState.bookAuthor = '';
+};
+
+const addBook = () => {
+  if (bookFormState.bookAuthor == '') {
+    console.log('書名為空');
+    return;
+  }
+  console.log('Adding book:', bookFormState);
+  // 添加书籍的逻辑
+  clearForm();
+};
+
+const deleteBook = () => {
+  if (bookFormState.bookAuthor == '') {
+    console.log('書名為空');
+    return;
+  }
+  console.log('Deleting book');
+  // 删除书籍的逻辑
+  clearForm();
+};
+
+const modifyBook = () => {
+  if (bookFormState.bookAuthor == '') {
+    console.log('書名為空');
+    return;
+  }
+  console.log('Modifying book:', bookFormState);
+  // 修改书籍的逻辑
+};
+
+const searchBooks = () => {
+  if (bookFormState.bookAuthor == '') {
+    console.log('書名為空');
+    return;
+  }
+  console.log('Searching books');
+  // 搜索书籍的逻辑
+};
+
+//用戶管理相關方法
+const userFormState = reactive({
+  username: '',
+  password: ''
+});
+
+// 删除用户方法
+const deleteUser = () => {
+  console.log('Deleting user:', userFormState.username);
+  // 删除用户的逻辑
+  clearUserForm();
+};
+
+// 修改用户密码方法
+const modifyUserPassword = () => {
+  console.log('Modifying password for user:', userFormState.username);
+  // 修改密码的逻辑
+  clearUserForm();
+};
+
+// 清空用户表单
+const clearUserForm = () => {
+  userFormState.username = '';
+  userFormState.password = '';
+};
+
+const bookColumns = [
+  {
+    title: '書籍名稱',
+    dataIndex: 'bookName',
+    width: 150
+  },
+  {
+    title: '書籍作者',
+    dataIndex: 'author',
+    width: 150
+  },
+  {
+    title: '借閱狀態',
+    dataIndex: 'state',
+    width: 150
+  },
+  {
+    title: '借閱時間',
+    dataIndex: 'borrowDate'
+  },
+];
+const bookData = [...Array(15)].map((_, i) => ({
+  key: i,
+  bookName: `Book ${i}`,
+  author: `Author ${i}`,
+  state: `in stock`,
+  borrowDate: `12/${i + 1}`
+}));
+
+
+const userColumns = [
+  {
+    title: '會員帳號',
+    dataIndex: 'userName',
+    width: 150
+  },
+  {
+    title: '會員密碼',
+    dataIndex: 'userPassword',
+    width: 150
+  },
+  {
+    title: '借閱書籍',
+    dataIndex: 'borrowedBooks',
+  }
+];
+const userData = [...Array(15)].map((_, i) => ({
+  key: i,
+  userName: `user ${i}`,
+  userPassword: `userPassword ${i}`,
+  borrowedBooks: `None`,
+}));
+
 </script>
 
+<style>
+h1 {
+  color: #333;
+  font-size: 24px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.management-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 10px;
+  /* 容器之间的间隔 */
+}
+
+.bookForm-container,
+.userForm-container {
+  flex: 1;
+  /* 两个容器平分空间 */
+  max-width: 700px;
+  /* 调整最大宽度 */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}</style>

@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from './components/Login.vue';
 import BorrowBooks from './components/BorrowBooks.vue';
 import Admin from './components/Admin.vue';
-
+import Register from './components/register.vue';
 // 创建路由器实例
 const router = createRouter({
   history: createWebHistory(),
@@ -13,12 +13,14 @@ const router = createRouter({
       component: Login,
     },
     {
+      path: '/register',
+      name: 'register',
+      component: Register,
+    },
+    {
       path: '/borrow-books',
       name: 'borrow-books',
       component: BorrowBooks,
-      // meta: {
-      //   requiresAuth: true, // 如果需要验证登录状态，可以加上这个 meta
-      // },
     },
     {
       path: '/admin',
