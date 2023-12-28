@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="borrow-book-container">
-      <h1>使用者介面</h1>
+      <h1>使用者介面 — 借閱、歸還書籍</h1>
       <a-form :model="borrowBookForm" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off"
         @finish="onFinish" @finishFailed="onFinishFailed">
 
@@ -14,7 +14,7 @@
           <a-button @click="doBorrowBook">借閱</a-button>
           <a-button style="margin-left: 10px" @click="doReturnBook">歸還</a-button>
         </a-form-item>
-        <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 400 }" />
+        <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 500 }" />
       </a-form>
 
     </div>
@@ -120,7 +120,7 @@ const bookData = [...Array(15)].map((_, i) => ({
   width: 120px;
   height: 31px;
   margin: 16px 24px 16px 0;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(40, 20, 20, 0.3);
 }
 
 .ant-row-rtl #components-layout-demo-top .logo {

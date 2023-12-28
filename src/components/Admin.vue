@@ -216,13 +216,12 @@ h1 {
 .bookForm-container,
 .userForm-container {
   flex: 1;
-  /* 两个容器平分空间 */
   max-width: 700px;
-  /* 调整最大宽度 */
   margin: 0 auto;
   padding: 20px;
   background-color: #f7f7f7;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 </style>

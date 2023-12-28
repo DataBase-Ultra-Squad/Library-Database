@@ -120,7 +120,7 @@ export default {
 <style>
 #app {
   text-align: center;
-  margin-top: 40px;
+  /* margin-top: 40px; */
 }
 
 .container {
@@ -134,11 +134,6 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   /* min-height: 100vh; */
   /* 至少为视口高度 */
-}
-
-.login-section {
-  /* margin-top: 100px; */
-  /* 距离顶部 100 像素 */
 }
 
 .login-status {

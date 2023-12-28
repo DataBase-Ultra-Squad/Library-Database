@@ -5,14 +5,14 @@ import BorrowAndReturnBooks from './components/BorrowAndReturnBooks.vue';
 import SearchBooks from './components/SearchBooks.vue';
 import Admin from './components/Admin.vue';
 import Register from './components/Register.vue';
+import RouteManager from './components/RouteManager.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      name: 'App',
-      component: App,
+      redirect: '/login', // 重定向到登录页
     },
     {
       path: '/login',
@@ -25,14 +25,21 @@ const router = createRouter({
       component: Register,
     },
     {
-      path: '/borrow-and-return-books',
-      name: 'borrow-and-return-books',
-      component: BorrowAndReturnBooks,
-    },
-    {
-      path: '/search-books',
-      name: 'search-books',
-      component: SearchBooks,
+      path: '/dashboard',
+      component: RouteManager,
+      children: [
+        {
+          path: '/borrow-and-return-books',
+          name: 'borrow-and-return-books',
+          component: BorrowAndReturnBooks,
+        },
+        {
+          path: '/search-books',
+          name: 'search-books',
+          component: SearchBooks,
+        },
+        // 可能还有其他子路由...
+      ],
     },
     {
       path: '/admin',
@@ -41,5 +48,6 @@ const router = createRouter({
     },
   ],
 });
+
 
 export default router;

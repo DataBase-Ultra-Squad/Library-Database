@@ -110,7 +110,7 @@ const onFinish = async values => {
 };
 </script>
 
-<style>
+<!-- <style>
 #app {
   text-align: left;
   margin-top: 40px;
@@ -140,4 +140,4 @@ const onFinish = async values => {
 }
 
 
-</style>
+</style> -->

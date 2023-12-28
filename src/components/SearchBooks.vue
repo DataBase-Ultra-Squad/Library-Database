@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="search-book-container">
-      <h1>使用者介面</h1>
+      <h1>使用者介面 — 查詢書籍</h1>
       <a-form :model="borrowBookForm" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off"
         @finish="onFinish" @finishFailed="onFinishFailed">
 
@@ -15,9 +15,9 @@
         </a-form-item>
 
         <a-form-item :wrapper-col="{ offset: 30, span: 16 }">
-          <a-button @click="doSearchBooks">搜尋</a-button>
+          <a-button @click="doSearchBooks">查詢</a-button>
         </a-form-item>
-        <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 500 }" />
+        <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 600 }" />
       </a-form>
 
     </div>
