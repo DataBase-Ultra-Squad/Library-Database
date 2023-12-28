@@ -1,14 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import App from './App.vue';
 import Login from './components/Login.vue';
-import BorrowBooks from './components/BorrowBooks.vue';
+import BorrowAndReturnBooks from './components/BorrowAndReturnBooks.vue';
+import SearchBooks from './components/SearchBooks.vue';
 import Admin from './components/Admin.vue';
-import Register from './components/register.vue';
-// 创建路由器实例
+import Register from './components/Register.vue';
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
+      name: 'App',
+      component: App,
+    },
+    {
+      path: '/login',
       name: 'login',
       component: Login,
     },
@@ -18,9 +25,14 @@ const router = createRouter({
       component: Register,
     },
     {
-      path: '/borrow-books',
-      name: 'borrow-books',
-      component: BorrowBooks,
+      path: '/borrow-and-return-books',
+      name: 'borrow-and-return-books',
+      component: BorrowAndReturnBooks,
+    },
+    {
+      path: '/search-books',
+      name: 'search-books',
+      component: SearchBooks,
     },
     {
       path: '/admin',

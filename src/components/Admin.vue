@@ -73,7 +73,7 @@ const clearForm = () => {
 };
 
 const addBook = () => {
-  if (bookFormState.bookAuthor == '') {
+  if (bookFormState.bookName == '') {
     console.log('書名為空');
     return;
   }
@@ -83,7 +83,7 @@ const addBook = () => {
 };
 
 const deleteBook = () => {
-  if (bookFormState.bookAuthor == '') {
+  if (bookFormState.bookName == '') {
     console.log('書名為空');
     return;
   }
@@ -93,7 +93,7 @@ const deleteBook = () => {
 };
 
 const modifyBook = () => {
-  if (bookFormState.bookAuthor == '') {
+  if (bookFormState.bookName == '') {
     console.log('書名為空');
     return;
   }
@@ -102,7 +102,7 @@ const modifyBook = () => {
 };
 
 const searchBooks = () => {
-  if (bookFormState.bookAuthor == '') {
+  if (bookFormState.bookName == '') {
     console.log('書名為空');
     return;
   }
@@ -138,19 +138,24 @@ const clearUserForm = () => {
 
 const bookColumns = [
   {
+    title: '書籍ID',
+    dataIndex: 'bookID',
+    width: 10
+  },
+  {
     title: '書籍名稱',
     dataIndex: 'bookName',
-    width: 150
+    width: 120
   },
   {
     title: '書籍作者',
     dataIndex: 'author',
-    width: 150
+    width: 120
   },
   {
     title: '借閱狀態',
     dataIndex: 'state',
-    width: 150
+    width: 120
   },
   {
     title: '借閱時間',
@@ -159,6 +164,7 @@ const bookColumns = [
 ];
 const bookData = [...Array(15)].map((_, i) => ({
   key: i,
+  bookID: `ID ${i}`,
   bookName: `Book ${i}`,
   author: `Author ${i}`,
   state: `in stock`,
@@ -218,4 +224,5 @@ h1 {
   background-color: #f7f7f7;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}</style>
+}
+</style>

@@ -38,6 +38,9 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const isLoading = ref(false); // 初始化加载状态为 false
 
@@ -46,7 +49,7 @@ const isModalOpen = ref(false);
 const modalContent = ref('');
 const handleOk = () => {
   isModalOpen.value = false;
-  this.$router.push('/');
+  router.push({name:'login'});
 };
 
 const formState = reactive({
