@@ -11,14 +11,12 @@
       >
         <a-menu-item key="1">借閱、歸還書籍</a-menu-item>
         <a-menu-item key="2">查詢書籍</a-menu-item>
+        <a-menu-item key="3">登出</a-menu-item>
       </a-menu>
     </a-layout-header>
     <a-layout-content style="padding: 0 50px">
-      <router-view></router-view> <!-- 显示当前路由的内容 -->
+      <router-view></router-view>
     </a-layout-content>
-    <!-- <a-layout-footer style="text-align: center">
-      資料庫系統 — 圖書館管理系統
-    </a-layout-footer> -->
   </a-layout>
 </template>
 
@@ -31,11 +29,16 @@ const selectedKeys = ref(['1']);
 
 const handleMenuClick = (e) => {
   if (e.key === '1') {
-    router.push('/borrow-and-return-books');
+    router.push('/borrow-and-search-books');
     selectedKeys.value = ['1'];
   } else if (e.key === '2') {
-    router.push('/search-books');
+    router.push('/return-books');
     selectedKeys.value = ['2'];
+  } else if (e.key === '3') {
+    localStorage.setItem('token', '');
+    console.log('登出 清除token: ',localStorage.getItem('token'));
+    router.push('/login');
+    selectedKeys.value = ['3'];
   }
 };
 </script>

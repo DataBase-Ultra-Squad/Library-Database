@@ -7,7 +7,8 @@
         <a-form-item :name="['user', 'userID']" label="學號" class="input-width" :rules="[{ required: true }]">
           <a-input v-model:value="formState.user.userID" />
         </a-form-item>
-        <a-form-item :name="['user', 'email']" label="電子郵件" class="input-width" :rules="[{ type: 'email', required: true }]">
+        <a-form-item :name="['user', 'email']" label="電子郵件" class="input-width"
+          :rules="[{ type: 'email', required: true }]">
           <a-input v-model:value="formState.user.email" />
         </a-form-item>
         <a-form-item :name="['user', 'name']" label="姓名" class="input-width" :rules="[{ required: true }]">
@@ -28,11 +29,10 @@
 
   <!-- 註冊狀態對話框 -->
   <div>
-    <a-modal v-model:open="isModalOpen" title="Basic Modal" @ok="handleOk">
+    <a-modal v-model:open="isModalOpen" title="提示訊息" @ok="handleOk">
       <p>{{ modalContent }}</p>
     </a-modal>
   </div>
-
 </template>
 
 <script setup>
@@ -47,9 +47,18 @@ const isLoading = ref(false); // 初始化加载状态为 false
 // 對話框相關
 const isModalOpen = ref(false);
 const modalContent = ref('');
+const isGoingLogin = ref(false);
+
+const handleCancel = () => {
+  isModalOpen.value = false;
+  // 这里可以添加其他取消时需要执行的代码
+};
+
 const handleOk = () => {
   isModalOpen.value = false;
-  router.push({name:'login'});
+  if (isGoingLogin.value) {
+    router.push({ name: 'login' });
+  }
 };
 
 const formState = reactive({
@@ -82,38 +91,43 @@ const onFinish = async values => {
   isLoading.value = true; // 开始加载
 
   try {
-    // 检查密码和确认密码是否一致
     if (values.user.password !== values.user.passwordConfirm) {
       alert('密碼不一致');
       return;
     }
 
-    const response = await axios.post('https://virtserver.swaggerhub.com/YU2000YY/Library/1.0.0/user/register', {
+    const response = await axios.post('https://lt.italkutalk.com/user/register', {
       userId: values.user.userID,
       email: values.user.email,
       name: values.user.name,
       password: values.user.password
     });
 
-    modalContent.value = '註冊成功！';
-    isModalOpen.value = true;
-    console.log('Registration Success:', response.data);
-    // 处理注册成功的逻辑，如跳转到登录页面或显示成功消息
+    if (response.status === 201) {
+      modalContent.value = '註冊成功！';
+      isGoingLogin.value = true;
+      isModalOpen.value = true;
+      console.log('Registration Success:', response.data);
+    }
   } catch (error) {
-    modalContent.value = '註冊失敗：' + error.message;
+    isGoingLogin.value = false;
+    if (error.response.status === 409) {
+      console.log(error);
+      modalContent.value = '註冊失敗！' + error.response.data.errMsg;
+    } else {
+      modalContent.value = '註冊失敗！' + error.response.data.errMsg;
+    }
     isModalOpen.value = true;
-    console.error('Registration Failed:', error.response?.data || error.message);
-    // 处理注册失败的逻辑，如显示错误消息
+
   } finally {
     isLoading.value = false; // 结束加载
   }
 };
 </script>
 
-<!-- <style>
+<style>
 #app {
   text-align: left;
-  margin-top: 40px;
 }
 
 .form-container {
@@ -138,6 +152,4 @@ const onFinish = async values => {
 .register-form .ant-btn {
   width: 100%;
 }
-
-
-</style> -->
+</style>

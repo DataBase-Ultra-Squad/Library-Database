@@ -5,6 +5,11 @@
         <h1>書籍管理介面</h1>
         <a-form :model="bookFormState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }"
           autocomplete="off" @finish="onFinish" @finishFailed="onFinishFailed">
+
+          <a-form-item label="書籍ID" class="input-width" name="bookID" >
+            <a-input v-model:value="bookFormState.bookID" />
+          </a-form-item>
+
           <a-form-item label="書籍名稱" class="input-width" name="bookName"
             :rules="[{ required: true, message: 'Please input book name!' }]">
             <a-input v-model:value="bookFormState.bookName" />
@@ -20,7 +25,7 @@
             <a-button style="margin-left: 10px" @click="modifyBook">修改</a-button>
             <a-button style="margin-left: 10px" @click="searchBooks">搜尋</a-button>
           </a-form-item>
-          <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 400 }" />
+          <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 400 }" :customRow="getBookRow" />
         </a-form>
 
       </div>
@@ -43,7 +48,7 @@
             <a-button style="margin-left: 10px" @click="modifyUserPassword">修改密碼</a-button>
           </a-form-item>
 
-          <a-table :columns="userColumns" :data-source="userData" :scroll="{ y: 400 }" />
+          <a-table :columns="userColumns" :data-source="userData" :scroll="{ y: 400 }" :customRow="getUserRow" />
         </a-form>
 
       </div>
@@ -140,7 +145,7 @@ const bookColumns = [
   {
     title: '書籍ID',
     dataIndex: 'bookID',
-    width: 10
+    width: 120
   },
   {
     title: '書籍名稱',
@@ -162,6 +167,26 @@ const bookColumns = [
     dataIndex: 'borrowDate'
   },
 ];
+
+const getBookRow = (record) => {
+  return {
+    onClick: () => {
+      // 假设您想在点击行时将书籍名更新到输入框中
+      bookFormState.bookID = record.bookID;
+      bookFormState.bookName = record.bookName;
+    },
+  };
+};
+
+const getUserRow = (record) => {
+  return {
+    onClick: () => {
+      // 假设您想在点击行时将用户名更新到输入框中
+      userFormState.username = record.userName;
+    },
+  };
+};
+
 const bookData = [...Array(15)].map((_, i) => ({
   key: i,
   bookID: `ID ${i}`,
@@ -223,5 +248,4 @@ h1 {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-
 </style>

@@ -59,24 +59,6 @@ export default {
 
   methods: {
     registerAccount() {
-      // const { loginUsername, loginPassword } = this;
-
-      // console.log("Username:", this.loginUsername);
-      // console.log("Password:", this.loginPassword);
-      // if (!loginUsername || !loginPassword) {
-      //   this.loginStatus = '帳號和密碼不能為空';
-      //   return;
-      // }
-
-      // if (this.users.some(user => user.username === loginUsername)) {
-      //   this.loginStatus = '此帳號名已經存在';
-      //   return;
-      // }
-
-      // this.users.push({ username: loginUsername, password: loginPassword });
-      // this.loginUsername = '';
-      // this.loginPassword = '';
-      // this.loginStatus = '註冊成功';
       this.$router.push('/register');
       return;
     },
@@ -91,26 +73,30 @@ export default {
       this.isLoading = true; // 开始加载
 
       try {
-        const response = await axios.post('https://virtserver.swaggerhub.com/YU2000YY/Library/1.0.0/user/login', {
+        const response = await axios.post('https://lt.italkutalk.com/user/login', {
           userId: loginUsername,
           password: loginPassword
         });
 
-        console.log('Login Success:', response.data);
-        this.loginStatus = '登入成功';
+        if (response.status === 200 && response.data.token) {
+          // 保存JWT令牌
+          localStorage.setItem('token', response.data.token);
+          console.log('Login Success:', response.data);
+          console.log('JWT:', response.data.token);
 
-        // 根据返回的数据进行路由跳转或其他操作
-        // 例如，根据 isAdmin 字段判断是否跳转到管理员界面
-        if (response.data.isAdmin) {
-          this.$router.push('/admin');
+          // 路由跳转
+          if (response.data.isAdmin) {
+            this.$router.push('/admin');
+          } else {
+            this.$router.push('/borrow-and-search-books');
+          }
         } else {
-          this.$router.push('/borrow-books');
+          throw new Error('無效的Token');
         }
       } catch (error) {
-        console.error('Login Failed:', error.response?.data || error.message);
-        this.loginStatus = '帳號或密碼錯誤';
+        this.loginStatus = '登入失敗：' + error.message;
       } finally {
-        this.isLoading = false; // 结束加载
+        this.isLoading = false;
       }
     }
   }
@@ -120,7 +106,6 @@ export default {
 <style>
 #app {
   text-align: center;
-  /* margin-top: 40px; */
 }
 
 .container {
@@ -139,7 +124,7 @@ export default {
 .login-status {
   margin-bottom: 20px;
   font-weight: bold;
-  color: green;
+  color: gray;
 }
 
 .margin-right {
