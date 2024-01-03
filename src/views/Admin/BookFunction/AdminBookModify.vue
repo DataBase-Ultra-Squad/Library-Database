@@ -6,7 +6,7 @@
 
       <a-form-item label="書籍ID" class="input-width" name="bookID"
         :rules="[{ required: true, message: 'Please input book ID!' }]">
-        <a-input v-model:value="bookFormState.bookName" />
+        <a-input v-model:value="bookFormState.bookID" />
       </a-form-item>
 
       <a-form-item label="書籍名稱" class="input-width" name="bookName"
@@ -23,38 +23,32 @@
       <div>
         <div>
           <a-radio-group v-model:value="selectedLanguage" button-style="solid">
-            <a-radio-button value="none">無</a-radio-button>
-            <a-radio-button value="chinese">中文</a-radio-button>
-            <a-radio-button value="english">英文</a-radio-button>
+            <a-radio-button value="Chinese">中文</a-radio-button>
+            <a-radio-button value="English">英文</a-radio-button>
           </a-radio-group>
         </div>
-
-        <div :style="{ marginTop: '16px' }">  
+        <div :style="{ marginTop: '16px' }">
           <a-radio-group v-model:value="selectedCategory" button-style="solid">
-            <a-radio-button value="none">無</a-radio-button>
-            <a-radio-button value="science">科學</a-radio-button>
-            <a-radio-button value="technology">科技</a-radio-button>
-            <a-radio-button value="history">歷史</a-radio-button>
-            <a-radio-button value="biography">傳記</a-radio-button>
+            <a-radio-button value="Science">科學</a-radio-button>
+            <a-radio-button value="Technology">科技</a-radio-button>
+            <a-radio-button value="History">歷史</a-radio-button>
+            <a-radio-button value="Literature">文學</a-radio-button>
           </a-radio-group>
         </div>
-
-        <!-- <div :style="{ marginTop: '16px' }">  
-          <a-radio-group v-model:value="selectedIsAvailable" button-style="solid">
-            <a-radio-button value="available">可借閱</a-radio-button>
-            <a-radio-button value="unavailable">不可借閱</a-radio-button>
-          </a-radio-group>
-        </div> -->
       </div>
 
       <a-form-item :wrapper-col="{ offset: 0, span: 4 }" :style="{ marginTop: '16px' }">
         <a-button @click="modifyBook">修改</a-button>
       </a-form-item>
-
       <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 400 }" :customRow="getBookRow"></a-table>
-
     </a-form>
 
+    <!-- 註冊狀態對話框 -->
+    <div>
+      <a-modal v-model:open="isModalOpen" title="提示訊息" @ok="handleOk">
+        <p>{{ modalContent }}</p>
+      </a-modal>
+    </div>
   </div>
 </template>
 
@@ -62,10 +56,14 @@
 import { reactive, computed, ref, onMounted } from 'vue';
 import axios from 'axios';
 
-const selectedLanguage = ref('none');
-const selectedCategory = ref('none');
-// const selectedIsAvailable = ref('available');
+const selectedLanguage = ref('Chinese');
+const selectedCategory = ref('Science');
+// const selectedIsAvailable = ref('true');
 const bookData = ref([]);
+
+// 添加用于对话框的状态
+const isModalOpen = ref(false);
+const modalContent = ref('');
 
 const onFinish = (values) => {
   console.log('Form Success:', values);
@@ -125,7 +123,7 @@ const getBookRow = (record) => {
       // 假设您想在点击行时将书籍名更新到输入框中
       bookFormState.bookID = record.bookID;
       bookFormState.bookName = record.bookName;
-      bookFormState.bookAuthor = record.bookAuthor;
+      bookFormState.bookAuthor = record.author;
     },
   };
 };
@@ -142,14 +140,7 @@ const fetchBooks = async () => {
     let url = 'https://lt.italkutalk.com/book';
     let params = {};
 
-    // 根据radio选择设置查询参数
-    if (selectedLanguage.value !== 'none') {
-      params.language = selectedLanguage.value;
-    }
-    if (selectedCategory.value !== 'none') {
-      params.category = selectedCategory.value;  // 更正拼写错误
-    }
-    params.isAvailable = true;
+
     console.log('params:', params)
     const response = await axios.get(url, {
       params: params,
@@ -171,39 +162,48 @@ const fetchBooks = async () => {
     console.log('Books:', response.data);
   } catch (error) {
     console.error('Error fetching books:', error);
-    // 处理错误情况
   }
 };
 
 onMounted(fetchBooks);
 
-const addBook = async () => {
+const handleOk = () => {
+  isModalOpen.value = false;
+};
+
+const modifyBook = async () => {
   if (bookFormState.bookName === '' || bookFormState.bookAuthor === '' || bookFormState.bookID === '') {
-    console.log('ID、書名或作者名為空');
+    modalContent.value = '欄位資料不完整';
+    isModalOpen.value = true;
     return;
   }
 
   try {
     const token = getToken();
-    const response = await axios.post('https://lt.italkutalk.com/admin/book', {
+    const response = await axios.patch('https://lt.italkutalk.com/admin/book', {
+      bookId: bookFormState.bookID,
       title: bookFormState.bookName,
       author: bookFormState.bookAuthor,
-      language: selectedLanguage.value !== 'none' ? selectedLanguage.value : undefined,
-      category: selectedCategory.value !== 'none' ? selectedCategory.value : undefined
+      language: selectedLanguage.value,
+      category: selectedCategory.value
     }, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
-
-    console.log('Added book:', response.data);
+    modalContent.value = '更新書籍成功！';
+    isModalOpen.value = true;
+    console.log('Modified book:', response.data);
     // 清空表單
     clearForm();
     // 可以在此處調用 fetchBooks() 來更新書籍列表
     fetchBooks();
   } catch (error) {
+    modalContent.value = '更新失敗！' + error.response?.data.errMsg;
     console.error('Error adding book:', error);
     // 處理錯誤情況，例如顯示錯誤消息
+  } finally {
+    isModalOpen.value = true;
   }
 };
 

@@ -17,30 +17,38 @@
         <div>
           <div>
             <a-radio-group v-model:value="selectedLanguage" button-style="solid">
-              <a-radio-button value="none">無</a-radio-button>
-              <a-radio-button value="chinese">中文</a-radio-button>
-              <a-radio-button value="english">英文</a-radio-button>
+              <a-radio-button value="none">不限</a-radio-button>
+              <a-radio-button value="Chinese">中文</a-radio-button>
+              <a-radio-button value="English">英文</a-radio-button>
             </a-radio-group>
           </div>
           <div :style="{ marginTop: '16px' }">
             <a-radio-group v-model:value="selectedCategory" button-style="solid">
-              <a-radio-button value="none">無</a-radio-button>
-              <a-radio-button value="science">科學</a-radio-button>
-              <a-radio-button value="technology">科技</a-radio-button>
-              <a-radio-button value="history">歷史</a-radio-button>
-              <a-radio-button value="biography">傳記</a-radio-button>
+              <a-radio-button value="none">不限</a-radio-button>
+              <a-radio-button value="Science">科學</a-radio-button>
+              <a-radio-button value="Technology">科技</a-radio-button>
+              <a-radio-button value="History">歷史</a-radio-button>
+              <a-radio-button value="Literature">文學</a-radio-button>
+            </a-radio-group>
+          </div>
+
+          <div :style="{ marginTop: '16px' }">
+            <a-radio-group v-model:value="selectedIsAvailabe" button-style="solid">
+              <a-radio-button value="none">不限</a-radio-button>
+              <a-radio-button value="true">可借閱</a-radio-button>
+              <a-radio-button value="false">不可借閱</a-radio-button>
             </a-radio-group>
           </div>
         </div>
-        
-        <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 550 }">
-          <template v-slot:action="{ record }">
-            <a-button 
-              @click="() => borrowBookById(record.bookID)"
-              :disabled="record.state === '已借出'"
-            >借閱</a-button>
-          </template>
-        </a-table>
+
+        <a-spin :spinning="isLoading">
+          <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 550 }">
+            <template v-slot:action="{ record }">
+              <a-button @click="() => borrowBookById(record.bookID)" :disabled="record.state === '已借出'">借閱</a-button>
+            </template>
+          </a-table>
+        </a-spin>
+
       </a-form>
     </div>
   </div>
@@ -55,18 +63,19 @@
 
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const router = useRouter();
 const selectedKeys = ref(['1']);
 const bookData = ref([]);
-
+const isLoading = ref(false);
 
 // radio group 預設值
 const selectedLanguage = ref('none');
 const selectedCategory = ref('none');
+const selectedIsAvailabe = ref('none');
 
 // 添加用于对话框的状态
 const isModalOpen = ref(false);
@@ -77,6 +86,10 @@ const handleModalOk = () => {
   isModalOpen.value = false;
   fetchBooks();
 };
+
+watch([selectedLanguage, selectedCategory, selectedIsAvailabe], () => {
+  doSearchBook();
+});
 
 const handleMenuClick = (e) => {
   if (e.key === '1') {
@@ -145,19 +158,22 @@ const bookColumns = [
 ];
 
 const fetchBooks = async () => {
+  isLoading.value = true;
   try {
     const token = getToken(); // 使用helper函数获取token
     let url = 'https://lt.italkutalk.com/book';
     let params = {};
 
-    // 根据radio选择设置查询参数
     if (selectedLanguage.value !== 'none') {
       params.language = selectedLanguage.value;
     }
     if (selectedCategory.value !== 'none') {
-      params.category = selectedCategory.value;  // 更正拼写错误
+      params.category = selectedCategory.value;
     }
-    params.isAvailable = true;
+    if (selectedIsAvailabe.value !== 'none') {
+      params.isAvailable = selectedIsAvailabe.value;
+    }
+
     console.log('params:', params)
     const response = await axios.get(url, {
       params: params,
@@ -180,12 +196,15 @@ const fetchBooks = async () => {
   } catch (error) {
     console.error('Error fetching books:', error);
     // 处理错误情况
+  } finally {
+    isLoading.value = false;
   }
 };
 
 onMounted(fetchBooks);
 
 const doSearchBook = async () => {
+  isLoading.value = true;
   try {
     const token = getToken();
     let url = 'https://lt.italkutalk.com/book';
@@ -196,6 +215,9 @@ const doSearchBook = async () => {
     }
     if (selectedCategory.value !== 'none') {
       params.category = selectedCategory.value;
+    }
+    if (selectedIsAvailabe.value !== 'none') {
+      params.isAvailable = selectedIsAvailabe.value;
     }
 
     console.log('params:', params)
@@ -220,7 +242,11 @@ const doSearchBook = async () => {
     }));
 
   } catch (error) {
+    modalContent.value = '查詢失敗！' + error.response?.data.errMsg;
+    isModalOpen.value = true;
     console.error('Error searching books:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 

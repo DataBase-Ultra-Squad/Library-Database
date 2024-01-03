@@ -4,14 +4,15 @@
       <h1>使用者介面 — 歸還書籍</h1>
       <a-form :model="borrowBookForm" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off"
         @finish="onFinish" @finishFailed="onFinishFailed">
-        
-        <a-table :columns="bookColumns" :data-source="borrowedBooks" :scroll="{ y: 600 }">
-          <template v-slot:action="{ record }">
-            <a-button @click="() => returnBookById(record.bookId)">歸還</a-button>
-          </template>
-        </a-table>
-      </a-form>
 
+        <a-spin :spinning="isLoading">
+          <a-table :columns="bookColumns" :data-source="borrowedBooks" :scroll="{ y: 600 }">
+            <template v-slot:action="{ record }">
+              <a-button @click="() => returnBookById(record.bookId)">歸還</a-button>
+            </template>
+          </a-table>
+        </a-spin>
+      </a-form>
     </div>
   </div>
 
@@ -21,7 +22,6 @@
       <p>{{ modalContent }}</p>
     </a-modal>
   </div>
-
 </template>
 
 
@@ -32,17 +32,12 @@ import axios from 'axios';
 // 添加用于对话框的状态
 const isModalOpen = ref(false);
 const modalContent = ref('');
+const isLoading = ref(false);
 
 // 借书成功或失败时的处理方法
 const handleModalOk = () => {
   isModalOpen.value = false;
   fetchBorrowedBooks();
-};
-
-const getToken = () => {
-  const token = localStorage.getItem('token');
-  console.log('token:', token); // 打印出token
-  return token;
 };
 
 const onFinish = (values) => {
@@ -72,6 +67,7 @@ const bookColumns = [
   {
     title: '借閱日期',
     dataIndex: 'borrowDate',
+    width: 120,
   },
   {
     title: '操作',
@@ -83,7 +79,14 @@ const bookColumns = [
 
 const borrowedBooks = ref([]);
 
+const getToken = () => {
+  const token = localStorage.getItem('token');
+  console.log('token:', token); // 打印出token
+  return token;
+};
+
 const fetchBorrowedBooks = async () => {
+  isLoading.value = true;
   try {
     const token = getToken();
     if (!token) {
@@ -96,6 +99,7 @@ const fetchBorrowedBooks = async () => {
         Authorization: `Bearer ${token}`
       }
     });
+    console.log('Headers:', Headers);
     console.log('Borrowed books:', response.data);
     borrowedBooks.value = response.data.map(book => ({
       ...book,
@@ -104,6 +108,8 @@ const fetchBorrowedBooks = async () => {
     }));
   } catch (error) {
     console.error('Error fetching borrowed books:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -137,7 +143,6 @@ const returnBookById = async (bookId) => {
 </script>
 
 <style>
-
 h1 {
   color: #333;
   font-size: 24px;

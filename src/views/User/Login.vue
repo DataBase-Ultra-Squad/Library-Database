@@ -4,7 +4,7 @@
     <a-spin :spinning="isLoading">
       <!-- 用户登录界面 -->
       <a-form class="login-section">
-        <h1>圖書館登入系統</h1>
+        <h1>圖書館系統</h1>
 
         <a-form-item label="帳號：">
           <a-input v-model:value="loginUsername" class="input-width" />
@@ -86,7 +86,7 @@ export default {
 
           // 路由跳转
           if (response.data.isAdmin) {
-            this.$router.push('/admin');
+            this.$router.push('/book/add');
           } else {
             this.$router.push('/borrow-and-search-books');
           }

@@ -9,7 +9,7 @@ import ReturnBooks from './views/User/ReturnBooks.vue';
 import RouteManager from './views/User/RouteManager.vue';
 
 // Admin
-import Admin from './views/Admin/Admin.vue';
+
 import AdminRouteManager from './views/Admin/AdminRouteManager.vue';
 
 // Admin/BookFunction

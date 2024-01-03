@@ -9,8 +9,8 @@
         :style="{ lineHeight: '64px' }"
         @click="handleMenuClick"
       >
-        <a-menu-item key="1">借閱、歸還書籍</a-menu-item>
-        <a-menu-item key="2">查詢書籍</a-menu-item>
+        <a-menu-item key="1">借閱、查詢書籍</a-menu-item>
+        <a-menu-item key="2">歸還書籍</a-menu-item>
         <a-menu-item key="3">登出</a-menu-item>
       </a-menu>
     </a-layout-header>
