@@ -45,7 +45,7 @@
 
       <a-table :columns="bookColumns" :data-source="bookData" :scroll="{ y: 500 }">
         <template v-slot:action="{ record }">
-          <a-button @click="() => deleteBookById(record.bookID)">刪除</a-button>
+          <a-button @click="() => deleteBookById(record.bookID)" :disabled="record.state === '已借出'">刪除</a-button>
         </template>
       </a-table>
     </a-form>

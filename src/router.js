@@ -22,7 +22,7 @@ import AdminBookSearch from './views/Admin/BookFunction/AdminBookSearch.vue';
 import AdminUserAdd from './views/Admin/UserFunction/AdminUserAdd.vue';
 import AdminUserDelete from './views/Admin/UserFunction/AdminUserDelete.vue';
 import AdminUserModify from './views/Admin/UserFunction/AdminUserModify.vue';
-import AdminUserSearch from './views/Admin/UserFunction/AdminUserSearch.vue';
+import AdminUserHistory from './views/Admin/UserFunction/AdminUserHistory.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -99,7 +99,7 @@ const router = createRouter({
         {
           path: '/user/search',
           name: 'user-search',
-          component: AdminUserSearch,
+          component: AdminUserHistory,
         },
       ],
     },

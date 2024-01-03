@@ -1,5 +1,5 @@
 <template>
-  <div class="userFormSearch-container">
+  <div class="userFormHistory-container">
     <h1>會員管理介面 — 查詢歷程</h1>
     <a-form :model="historyState" name="userForm" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }"
       autocomplete="off">
@@ -8,15 +8,15 @@
         <a-input v-model:value="historyState.userID" />
       </a-form-item>
 
-      <a-form-item label="書籍ID" class="input-width" name="bookID">
-        <a-input v-model:value="historyState.bookID" />
+      <a-form-item label="書籍ID" class="input-width" name="bookName">
+        <a-input v-model:value="historyState.bookName" />
       </a-form-item>
 
       <a-form-item :wrapper-col="{ offset: 30, span: 16 }">
         <a-button @click="searchUser">查詢</a-button>
       </a-form-item>
 
-      <a-table :columns="userColumns" :data-source="userData" :scroll="{ y: 400 }" :customRow="getUserRow">
+      <a-table :columns="userColumns" :data-source="userData" :scroll="{ y: 400 }">
       </a-table>
     </a-form>
 
@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import axios from 'axios';
 
 // 定义查询状态
@@ -36,13 +36,13 @@ const historyState = reactive({
 // 定义表格列和数据
 const userColumns = [
   {
-    title: '會員ID',
-    dataIndex: 'userID',
+    title: '會員名字',
+    dataIndex: 'userName',
     width: 120
   },
   {
-    title: '書籍ID',
-    dataIndex: 'bookID',
+    title: '書籍名稱',
+    dataIndex: 'bookName',
     width: 120
   },
   {
@@ -63,38 +63,50 @@ const getToken = () => {
   return localStorage.getItem('token');
 };
 
-// 查询借阅历史的方法
 const searchUser = async () => {
   try {
     const token = getToken();
-    const params = {
-      userID: historyState.userID,
-      bookID: historyState.bookID
-    };
-    const response = await axios.get('/admin/borrowHistory', {
+    const params = {};
+    if (historyState.userID) {
+      params.name = historyState.userID; // 注意参数名称是否与后端API一致
+    }
+    if (historyState.bookName) {
+      params.title = historyState.bookName; // 注意参数名称是否与后端API一致
+    }
+
+    console.log('params:', params);
+    const response = await axios.get('https://lt.italkutalk.com/admin/borrowHistory', {
       params: params,
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
 
-    // 根据API响应更新userData
+    console.log('response:', response);
+
     userData.value = response.data.map((item, index) => ({
       key: index,
-      userID: item.userID,
-      bookID: item.bookID,
-      borrowDate: item.borrowDate, // 确保这些字段与API返回的字段匹配
-      returnDate: item.returnDate
+      userName: item.name, // 确保字段名称与API返回的匹配
+      bookName: item.title,
+      borrowDate: formatDateTime(item.borrowDate),
+      returnDate: item.returnDate ? formatDateTime(item.returnDate) : '' // 如果 returnDate 不存在，返回空字符串
     }));
-
-    console.log('Borrow History:', response.data);
   } catch (error) {
     console.error('Error fetching borrow history:', error);
   }
 };
 
+onMounted(searchUser);
+
+const formatDateTime = (dateTime) => {
+  const date = new Date(dateTime);
+  return `${date.getMonth() + 1}-${date.getDate()}`;
+};
+
 </script>
 
 <style>
-userFormSearch-container {
+userFormHistory-container {
   flex: 1;
   max-width: 700px;
   margin: 0 auto;

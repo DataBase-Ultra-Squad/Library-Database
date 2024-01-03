@@ -16,19 +16,29 @@
         <a-button @click="searchUser">查詢</a-button>
       </a-form-item>
 
-      <a-table :columns="userColumns" :data-source="userData" :scroll="{ y: 400 }" :customRow="getUserRow">
+      <a-table :columns="userColumns" :data-source="userData" :scroll="{ y: 500 }">
         <template v-slot:action="{ record }">
-          <a-button @click="() => deleteBookById(record.bookID)">刪除</a-button>
+          <a-button @click="() => deleteUser(record.userId)">刪除</a-button>
         </template>
       </a-table>
     </a-form>
+
+    <!-- 註冊狀態對話框 -->
+    <div>
+      <a-modal v-model:open="isModalOpen" title="提示訊息" @ok="handleOk">
+        <p>{{ modalContent }}</p>
+      </a-modal>
+    </div>
 
   </div>
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import axios from 'axios';
+
+const isModalOpen = ref(false);
+const modalContent = ref('');
 
 const userFormState = reactive({
   userID: '',
@@ -40,22 +50,17 @@ const userData = reactive([]);
 const userColumns = [
   {
     title: '會員ID',
-    dataIndex: 'userID',
-    width: 150
-  },
-  {
-    title: '會員密碼',
-    dataIndex: 'userPassword',
-    width: 150
+    dataIndex: 'userId',
+    width: 120
   },
   {
     title: '會員姓名',
-    dataIndex: 'userName',
-    width: 150
+    dataIndex: 'name',
+    width: 120
   },
   {
     title: '會員信箱',
-    dataIndex: 'userEmail',
+    dataIndex: 'email',
     width: 200
   },
   {
@@ -66,14 +71,23 @@ const userColumns = [
   }
 ];
 
+const handleOk = () => {
+  isModalOpen.value = false;
+};
+
 onMounted(async () => {
   await fetchAllUsers();
 });
 
 const fetchAllUsers = async () => {
   try {
-    const response = await axios.get('/admin/user');
-    userData.splice(0, userData.length, ...response.data.users);
+    const token = localStorage.getItem('token'); // 获取存储的token
+    const response = await axios.get('https://lt.italkutalk.com/admin/user', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    userData.splice(0, userData.length, ...response.data);
   } catch (error) {
     console.error('获取用户数据失败:', error);
   }
@@ -81,19 +95,64 @@ const fetchAllUsers = async () => {
 
 const searchUser = async () => {
   try {
-    const response = await axios.get('/admin/user/search', { params: { userID: userFormState.userID, username: userFormState.username } });
-    userData.splice(0, userData.length, ...response.data.users);
+    const token = localStorage.getItem('token'); // 获取存储的token
+    const params = {};
+    if (userFormState.userID) {
+      params.userId = userFormState.userID;
+    }
+    if (userFormState.username) {
+      params.name = userFormState.username;
+    }
+
+    const response = await axios.get('https://lt.italkutalk.com/admin/user', {
+      params: params,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    userData.splice(0, userData.length, ...response.data);
   } catch (error) {
     console.error('查询用户数据失败:', error);
   }
-};  
+};
+
+const deleteUser = async (userId) => {
+  if (!userId) {
+    console.log('未指定用戶ID');
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token'); // 获取存储的token
+    const data = {};
+    data.userId = userId;
+    console.log('Data:', data);
+
+    await axios.delete(`https://lt.italkutalk.com/admin/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      data: data
+    });
+    
+    console.log('用户删除成功');
+
+    modalContent.value = '用戶刪除成功';
+    isModalOpen.value = true;
+    fetchAllUsers(); // 重新获取用户列表
+  } catch (error) {
+    modalContent.value = '用戶刪除失敗: ' + error.response?.data.errMsg;
+    console.error('Error deleting user:', error);
+    isModalOpen.value = true;
+  }
+};
 
 </script>
 
 <style>
 userFormDelete-container {
   flex: 1;
-  max-width: 700px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f7f7f7;
