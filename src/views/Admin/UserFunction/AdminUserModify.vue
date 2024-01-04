@@ -19,7 +19,6 @@
 
           <a-table :columns="userColumns" :data-source="userData" :scroll="{ y: 400 }" :customRow="getUserRow" />
         </a-form>
-
       </div>
 </template>
 

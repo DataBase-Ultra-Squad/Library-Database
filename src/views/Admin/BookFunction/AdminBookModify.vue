@@ -120,10 +120,11 @@ const bookColumns = [
 const getBookRow = (record) => {
   return {
     onClick: () => {
-      // 假设您想在点击行时将书籍名更新到输入框中
       bookFormState.bookID = record.bookID;
       bookFormState.bookName = record.bookName;
       bookFormState.bookAuthor = record.author;
+      selectedLanguage.value = record.language;
+      selectedCategory.value = record.category;
     },
   };
 };
